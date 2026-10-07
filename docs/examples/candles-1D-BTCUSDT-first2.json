@@ -1,0 +1,26 @@
+{
+  "symbol": "BTC/USDT",
+  "timeframe": "1D",
+  "interval": "5m",
+  "candles_total": 288,
+  "candles": [
+    {
+      "ts": 1790928300000,
+      "open": 86270.0,
+      "high": 86308.01,
+      "low": 86249.0,
+      "close": 86297.21,
+      "volume": 39.1038,
+      "closed": true
+    },
+    {
+      "ts": 1790928600000,
+      "open": 86297.22,
+      "high": 86342.81,
+      "low": 86280.0,
+      "close": 86320.01,
+      "volume": 44.25685,
+      "closed": true
+    }
+  ]
+}

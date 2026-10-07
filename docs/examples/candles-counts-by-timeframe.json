@@ -1,0 +1,22 @@
+{
+  "1D": {
+    "interval": "5m",
+    "candles": 288
+  },
+  "1W": {
+    "interval": "15m",
+    "candles": 672
+  },
+  "1M": {
+    "interval": "1h",
+    "candles": 720
+  },
+  "1Y": {
+    "interval": "1d",
+    "candles": 365
+  },
+  "ALL": {
+    "interval": "1d",
+    "candles": 3075
+  }
+}

@@ -1,0 +1,6 @@
+event: tick
+data: {"symbol": "BTC/USDT", "ts": 1791014700000, "closed": false, "open": 84594.72, "high": 84614.01, "low": 84594.71, "close": 84614.01, "volume": 3.01572}
+
+event: tick
+data: {"symbol": "BTC/USDT", "ts": 1791014700000, "closed": false, "open": 84594.72, "high": 84614.01, "low": 84594.71, "close": 84614.01, "volume": 3.01627}
+

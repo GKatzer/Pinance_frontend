@@ -1,0 +1,559 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-base: #0A0E14;
+  --bg-surface: #11161F;
+  --bg-elevated: #161C28;
+  --bg-overlay: #1B2230;
+  --bg-deep: #070A0F;
+  --border: #232B3A;
+  --border-subtle: #1A2030;
+  --border-strong: #2E3849;
+  --accent: #20A4F3;
+  --accent-dim: #1B2C5C;
+  --accent-glow: rgba(77, 124, 255, 0.18);
+  --green: #1FCB7E;
+  --green-dim: #0E3D2A;
+  --red: #F0526A;
+
+  --red-dim: #3D1620;
+  --amber: #F5A524;
+  --amber-dim: #3D2D10;
+  --violet: #7C5BFF;
+  --violet-dim: #261D4D;
+  --text: #ECEEF2;
+  --text-2: #98A2B3;
+  --text-3: #5E6878;
+  --text-4: #3D4554;
+  --mono-d: "IBM Plex Mono", ui-monospace, monospace;
+  --mono-n: "JetBrains Mono", ui-monospace, monospace;
+  --sans: "DM Sans", system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box;}
+html, body { margin: 0; padding: 0; }
+
+/* ── selectable zones ── */
+.metric-current-price, .metric-current-price *,
+.metric-predicted, .metric-predicted *, body * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+body *::selection {
+  background: var(--accent-dim);
+  color: #fff;
+  text-shadow: 0 0 14px var(--accent-dim), 0 0 28px rgba(18, 11, 139, 0.6);
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg-base);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  overflow-x: clip;
+  min-height: 100vh;
+  position: relative;
+}
+::-webkit-scrollbar-track { background: var(--bg-base); }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.018) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+body > * { position: relative; z-index: 1; }
+
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)} }
+@keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(31,203,126,.6)}100%{box-shadow:0 0 0 8px rgba(31,203,126,0)} }
+@keyframes shimmer { 0%{background-position:-200% 0}100%{background-position:200% 0} }
+@keyframes flipIn { 0%{transform:translateY(-100%);opacity:0}100%{transform:translateY(0);opacity:1} }
+@keyframes flash { 0%{background-color:var(--accent-glow)}100%{background-color:transparent} }
+@keyframes drawLine { from{stroke-dashoffset:1000}to{stroke-dashoffset:0} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)} }
+@keyframes ticker { from{transform:translateX(0)}to{transform:translateX(-50%)} }
+
+.flash { animation: flash 1s ease-out; }
+.fade-in { animation: fadeIn 280ms ease-out both; }
+
+.mono-d { font-family: var(--mono-d); }
+.mono-n { font-family: var(--mono-n); font-variant-numeric: tabular-nums; }
+.label { font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); font-weight: 500; }
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.muted { color: var(--text-2); }
+
+/* ── ticker ── */
+.ticker-mask { overflow: hidden; border-bottom: 1px solid var(--border-subtle); background: var(--bg-deep); }
+.ticker-track { display: flex; padding: 8px 0; white-space: nowrap; animation: ticker 90s linear infinite; width: max-content; }
+.ticker-group, .ticker-set { display: flex; flex-shrink: 0; }
+.ticker-item { display: inline-flex; align-items: center; gap: 8px; padding-right: 32px; font-family: var(--mono-n); font-size: 11px; color: var(--text-2); }
+
+html {
+  overflow-y: scroll;
+  overflow-y: scroll;
+}
+
+/* ── nav ── */
+.nav {
+  position: sticky;
+  top: 0px;
+  z-index: 50;
+  width: auto;
+
+  height: 56px;
+  border-radius: 0 0 15px 15px;  
+
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 24px;
+
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(5) saturate(1);
+  /* -webkit-backdrop-filter: blur(50) saturate(3); */
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-top: none;
+
+
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(77, 124, 255, 0.05),
+      transparent
+    );
+
+  pointer-events: none;
+}
+
+/* .nav::after {
+  content: "";
+  position: absolute;
+
+  left: 50%;
+  top: -80px;
+
+  width: 240px;
+  height: 160px;
+
+  transform: translateX(-50%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(77, 124, 255, 0.15),
+      transparent 70%
+    );
+
+  pointer-events: none;
+} */
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono-d); font-weight: 600; font-size: 14px; letter-spacing: 0.04em; }
+.brand-mark { width: 22px; height: 22px; position: relative; display: inline-block; flex-shrink: 0; }
+.brand-mark::before,.brand-mark::after { content: ""; position: absolute; inset: 2px; border: 1.5px solid var(--accent); transform: rotate(45deg); }
+.brand-mark::after { inset: 6px; background: var(--accent); border: none; }
+.brand-tag { color: var(--text-3); font-size: 10px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 3px; margin-left: 4px; letter-spacing: 0.1em; }
+.tabs { display: flex; gap: inherit; height: 100%; align-items: stretch; }
+.tab { position: relative; padding: 0 18px; display: flex; align-items: center; font-family: var(--mono-d); font-size: 12px; color: var(--text-2); cursor: pointer; background: none; border: none; letter-spacing: 0.02em; transition: color 120ms; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); }
+.tab.active::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: -1px; height: 2px; background: var(--accent); }
+.tab-num { font-family: var(--mono-n); font-size: 9px; color: var(--text-4); margin-right: 6px; }
+.tab.active .tab-num { color: var(--accent); }
+.tab-icon { display: none; align-items: center; }
+.tab-icon svg { display: block; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.live { display: flex; align-items: center; gap: 8px; font-family: var(--mono-d); font-size: 11px; color: var(--text-2); letter-spacing: 0.08em; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulseRing 1.6s ease-out infinite; }
+.pair-select { display: flex; align-items: center; gap: 8px; padding: 7px 10px 7px 8px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono-d); font-size: 12px; cursor: pointer; color: var(--text); transition: border-color 150ms; }
+.pair-select:hover { border-color: var(--border-strong); }
+.pair-icon { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; font-family: var(--mono-d); }
+
+/* ── container ── */
+/* Без ограничения ширины — растягивается почти на весь экран на любом
+   разрешении, боковой отступ держит только padding.
+   zoom масштабирует ВЕСЬ макет целиком (шрифты, паддинги, панели, график —
+   всё внутри .container) на больших экранах, а не только график: на 1920px
+   и уже — без изменений (zoom=1), дальше плавно растёт, до 1.5x на очень
+   широких/высоких мониторах. getBoundingClientRect/clientX согласованно
+   учитывают zoom, поэтому наведение на график остаётся точным. */
+.container {
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 56px;
+  zoom: clamp(1, calc(100vw / 1920px), 1.5);
+}
+
+/* ── page strip ── */
+.page-strip { display: flex; align-items: center; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle); font-family: var(--mono-d); font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; }
+.page-strip .crumb { color: var(--text-2); }
+.page-strip .sep { color: var(--text-4); }
+.page-strip .meta { margin-left: auto; display: flex; gap: 20px; }
+.page-strip .meta span { display: inline-flex; gap: 6px; }
+.page-strip .meta b { color: var(--text); font-weight: 500; font-family: var(--mono-n); }
+
+/* ── metrics (reused by MLOps' .mlops-strip; LivePrediction now uses .stat-tiles below) ── */
+.metric { background: var(--bg-surface); padding: 14px 18px; position: relative; overflow: hidden; }
+.metric-label { font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.metric-value { font-family: var(--mono-n); font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
+.metric-sub { margin-top: 4px; font-family: var(--mono-n); font-size: 11px; color: var(--text-2); }
+.metric-glyph { position: absolute; top: 12px; right: 14px; font-family: var(--mono-d); font-size: 9px; color: var(--text-4); letter-spacing: 0.1em; }
+
+/* ── stat tiles (CoinMarketCap-style cards) — snapshot info in the side panel next to the chart ── */
+.stat-tiles { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.stat-tile { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 14px; }
+.stat-tile-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-tile-label { font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px; }
+.stat-tile-value { font-family: var(--mono-n); font-size: 16px; color: var(--text); }
+.stat-tile-sub { font-family: var(--mono-n); font-size: 10px; margin-top: 4px; }
+.stat-tile-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+
+/* ── mobile compact current-price row (above Event Tape) ── */
+.mobile-price-row { display: flex; align-items: baseline; gap: 10px; padding: 10px 0; font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+.mobile-price-row .mobile-price-value { font-family: var(--mono-n); font-size: 18px; letter-spacing: normal; text-transform: none; color: var(--text); }
+.mobile-price-row .pos, .mobile-price-row .neg { font-family: var(--mono-n); font-size: 13px; letter-spacing: normal; text-transform: none; }
+
+/* ── badges ── */
+.badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono-d); font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 3px; letter-spacing: 0.08em; text-transform: uppercase; }
+.badge.green { background: var(--green-dim); color: var(--green); }
+.badge.red { background: var(--red-dim); color: var(--red); }
+.badge.blue { background: var(--accent-dim); color: var(--accent); }
+.badge.amber { background: var(--amber-dim); color: var(--amber); }
+.badge.violet { background: var(--violet-dim); color: var(--violet); }
+.badge.muted { background: var(--bg-elevated); color: var(--text-2); border: 1px solid var(--border); }
+
+/* ── progress bar ── */
+.bar { height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 400ms ease; }
+.bar-fill.green { background: var(--green); }
+.bar-fill.amber { background: var(--amber); }
+.bar-fill.red { background: var(--red); }
+
+/* ── live grid ──
+   Side panel (snapshot + model quality) visually sits LEFT of the chart on
+   desktop, chart stays first in DOM (so on mobile — where the grid collapses
+   to one column — it naturally stacks chart-then-panel, panel below chart). */
+.live-grid { display: grid; grid-template-columns: 320px 1fr; gap: 12px; margin-top: 12px; }
+.live-grid > .chart-panel { order: 2; }
+.live-grid > .panel:not(.chart-panel) { order: 1; }
+@media (max-width: 1100px) {
+  .live-grid { grid-template-columns: 1fr; }
+  .live-grid > .chart-panel { order: 1; }
+  .live-grid > .panel:not(.chart-panel) { order: 2; }
+}
+
+/* ── panel ── */
+.panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 4px; }
+.panel-head { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); gap: 12px; user-select:none;}
+.panel-title { font-family: var(--mono-d); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-2); font-weight: 500; }
+.panel-title b { color: var(--text); font-weight: 500; }
+.panel-actions { margin-left: auto; display: flex; gap: 6px; }
+.chart-controls { display: flex; align-items: center; gap: 8px; }
+.icon-btn { width: 24px; height: 24px; background: none; border: 1px solid var(--border); color: var(--text-3); border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono-d); font-size: 16px; transition: all 120ms; }
+.icon-btn:hover { border-color: var(--border-strong); color: var(--text); }
+.icon-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.icon-btn.chip-btn { width: auto; padding: 0 9px; font-size: 12px; }
+
+.home-icon {
+  width: 15px;
+  height: 15px;
+
+  background-color: var(--text-3);
+
+  -webkit-mask-image: url("/home.png");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+
+  mask-image: url("/home.png");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+
+  transition: background-color 120ms;
+}
+
+.icon-btn:hover .home-icon {
+  background-color: var(--text);
+}
+
+.icon-btn.active .home-icon {
+  background-color: var(--accent);
+}
+
+
+/* ── chart ── */
+/* flex column — chart-wrap ниже растягивается на flex:1, а не сидит на
+   aspect-ratio: живая высота панели (grid растягивает её под соседнюю
+   side-панель, которая обычно выше) больше не остаётся пустой снизу графика. */
+.chart-panel { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+/* flex:1 + min-height вместо aspect-ratio — высота больше не завязана жёстко на
+   ширину (viewBox 1080xH пересчитывается в charts.jsx через ResizeObserver под
+   реальный размер этого блока, а не наоборот). min-height — пол на случай, когда
+   расти особо не из чего (страница только грузится, side-панель ещё не набрала
+   контент). */
+/* z-index:0 (not just position:relative) matters here — without it chart-wrap doesn't
+   establish its own stacking context, so a negative z-index child (.chart-yaxis) escapes
+   past it entirely and ends up behind the whole panel's opaque background instead of just
+   behind the chart's own SVG content. */
+/* touch-action:none — без этого палец на мобильном тач-устройстве по умолчанию
+   скроллит страницу вместо трекинга по графику: браузер перехватывает жест на
+   pan (вертикальный/горизонтальный скролл) раньше, чем до pointermove вообще
+   доходит дело, и slide по свечам получается рваным/обрывается. */
+.chart-wrap { position: relative; z-index: 0; width: 100%; flex: 1 1 auto; min-height: 420px; touch-action: none; }
+.chart-svg { display: block; width: 100%; height: 100%; }
+.chart-legend { position: absolute; top: 16px; right: 16px; display: flex; gap: 14px; font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; color: var(--text-2); }
+.chart-legend .lg { display: flex; align-items: center; gap: 6px; }
+.chart-legend .swatch { width: 10px; height: 2px; }
+
+/* chart axis labels (mobile only) — plain HTML overlays, sized independently of the SVG's non-uniform scaling.
+   .chart-yaxis sits at the chart's right edge like before, but with z-index below the SVG
+   (see inline zIndex:-1 in charts.jsx) so the candles/lines draw over it instead of the
+   labels covering them. */
+.chart-yaxis { position: absolute; inset: 0; pointer-events: none; }
+.chart-yaxis .axis-label { position: absolute; right: 6px; transform: translateY(-50%); font-family: var(--mono-n); font-size: 12px; color: var(--text-2); background: rgba(10,14,20,0.55); padding: 1px 5px; border-radius: 2px; white-space: nowrap; }
+.chart-xaxis { position: absolute; left: 0; right: 0; bottom: 6px; height: 16px; pointer-events: none; }
+.chart-xaxis .axis-label { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--mono-n); font-size: 12px; color: var(--text-3); white-space: nowrap; }
+.chart-pred-badge { position: absolute; transform: translate(6px, -50%); background: var(--accent); color: var(--bg-base); font-family: var(--mono-n); font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 2px; pointer-events: none; white-space: nowrap; }
+
+/* ── sidebar ── */
+.side-block { padding: 14px 16px; }
+.side-block + .side-block { border-top: 1px solid var(--border-subtle); }
+.roll-row { display: grid; grid-template-columns: 32px 1fr 48px; gap: 10px; align-items: center; margin-bottom: 8px; font-family: var(--mono-n); font-size: 12px; }
+.roll-row .lbl { color: var(--text-3); font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.08em; }
+.roll-row .val { text-align: right; color: var(--text); }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; font-family: var(--mono-n); font-size: 12px; }
+.stat-row + .stat-row { border-top: 1px dashed var(--border-subtle); }
+.stat-row .k { color: var(--text-3); font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── log ── */
+/* Колонки — все треки в фиксированных px/fr (никакого auto/min-content):
+   .log-head и .log-row это два НЕЗАВИСИМЫХ грида (разные элементы), и трек
+   auto в каждом считался бы по своему контенту (в шапке "DIFF" ~25px, в
+   строке дельта с min-width 56px) — из-за этого граница между REAL и PRED
+   съезжала между шапкой и строками. Фикс — одинаковая раскладка в обоих. */
+.log-head { display: grid; grid-template-columns: 44px 40px 1fr 1fr 56px; gap: 10px; padding: 6px 16px; font-family: var(--mono-d); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); border-bottom: 1px solid var(--border-subtle); user-select: none; position: sticky; top: 0; z-index: 1; background: var(--bg-surface); }
+.log-head .log-col { cursor: pointer; display: flex; align-items: center; gap: 2px; transition: color 120ms; position: relative; }
+.log-head .log-col:hover { color: var(--text); }
+.log-head .log-col.right { justify-content: flex-end; }
+.log-head .log-col.active { color: var(--accent); }
+.log { max-height: 180px; overflow-y: auto; }
+.log-row { display: grid; grid-template-columns: 44px 40px 1fr 1fr 56px; gap: 10px; padding: 8px 16px; font-family: var(--mono-n); font-size: 11px; align-items: center; border-bottom: 1px solid var(--border-subtle); transition: background 150ms; }
+.log-row:hover { background: var(--bg-elevated); }
+.log-row .t { color: var(--text-3); }
+.log-row .h { color: var(--text-3); font-family: var(--mono-d); font-size: 10px; }
+/* min-width:0 — иначе у grid-айтема неявный min-width:auto, и трек 1fr считается
+   по min-content содержимого; у PRED он шире из-a CI-бейджа (◆/◇), и колонки
+   REAL/PRED плавали на пару px от строки к строке (у каждой .log-row свой грид). */
+.log-row .real { color: var(--text); display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.log-row .pred { color: var(--text-2); display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.log-row .delta { font-weight: 500; text-align: right; }
+/* q10/q90 coverage — попал ли actual в 90% доверительный коридор квантильной модели */
+.log-band { margin-left: 2px; font-size: 10px; cursor: default; }
+.log-band.in { color: rgba(77,124,255,1); }
+.log-band.out { color: var(--color-vio); }
+.log-empty { padding: 16px 12px; color: var(--text-3); font-size: 11px; font-family: var(--mono-d); letter-spacing: 0.1em; }
+
+/* horizon filter dropdown (opens from .log-head's HRZN column) — HRZN сидит
+   вторым узким столбцом у ЛЕВОГО края сайдбар-панели, а .dropdown по
+   умолчанию растёт от right:0, то есть ВЛЕВО — там места нет, и меню вылезало
+   за пределы страницы. Разворачиваем рост вправо, туда есть место что на
+   десктопе (320px-панель), что на мобилке (панель на всю ширину). Компаунд-
+   селектор — чтобы точно перебить .dropdown { right: 0 } независимо от
+   порядка правил в файле. */
+/* Десктоп: 4×3 (растёт вбок) — 3×4 не помещался по высоте. Мобилка ниже
+   переопределяет обратно на 3×4, там и так по ширине в притык. */
+.dropdown.log-horizon-menu { left: 0; right: auto; padding: 8px; min-width: 168px; max-width: calc(100vw - 32px); }
+.log-horizon-quick-row { display: flex; gap: 6px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border-subtle); }
+.log-horizon-quick { font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.06em; color: var(--text-2); cursor: pointer; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+.log-horizon-quick:hover { background: var(--bg-elevated); color: var(--text); }
+.log-horizon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+.log-horizon-item { display: flex; align-items: center; gap: 5px; padding: 4px 5px; border-radius: 4px; cursor: pointer; font-family: var(--mono-n); font-size: 11px; color: var(--text); }
+.log-horizon-item:hover { background: var(--bg-elevated); }
+.log-horizon-item input { accent-color: var(--accent); cursor: pointer; }
+
+/* ── tape ── */
+.tape { position: relative; height: 56px; background: var(--bg-deep); border: 1px solid var(--border-subtle); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+.tape-axis { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--border); }
+.tape-tick { position: absolute; top: 50%; transform: translate(-50%,-50%); width: 1px; height: 8px; background: var(--border); }
+.tape-event { position: absolute; top: 50%; transform: translate(-50%,-50%); width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-deep); cursor: pointer; transition: transform 150ms; }
+.tape-event:hover { transform: translate(-50%,-50%) scale(1.4); z-index: 2; }
+.tape-event.retrain { background: var(--accent); }
+.tape-event.promote { background: var(--green); }
+.tape-event.reject  { background: var(--red); }
+.tape-event.drift   { background: var(--amber); }
+.tape-event.shadow  { background: var(--text-3); }
+.tape-label-l,.tape-label-r { position: absolute; top: 6px; font-family: var(--mono-d); font-size: 9px; letter-spacing: 0.1em; color: var(--text-4); }
+.tape-label-l { left: 12px; }
+.tape-label-r { right: 12px; }
+.tape-bottom { position: absolute; bottom: 6px; left: 12px; right: 12px; display: flex; justify-content: space-between; font-family: var(--mono-n); font-size: 9px; color: var(--text-3); }
+
+/* ── perf grid ── */
+.perf-section { display: flex; align-items: baseline; gap: 8px; margin-top: 26px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); font-family: var(--mono-d); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-2); }
+.perf-section-sub { font-size: 10px; letter-spacing: 0.06em; text-transform: none; color: var(--text-3); }
+.perf-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 12px; }
+@media (max-width: 1000px) { .perf-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 700px)  { .perf-grid { grid-template-columns: 1fr; } }
+.perf-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 14px 16px; height: 240px; display: flex; flex-direction: column; }
+.perf-card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.perf-card-title { font-family: var(--mono-d); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+.perf-card-val { font-family: var(--mono-n); font-size: 13px; color: var(--text); }
+.perf-card-svg { flex: 1; min-height: 0; }
+
+/* ── mlops ── */
+.mlops-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-subtle); margin-top: 16px; }
+.mlops-strip .metric { padding: 16px 18px; }
+.mlops-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin-top: 12px; }
+@media (max-width: 1000px) { .mlops-grid { grid-template-columns: 1fr; } }
+
+/* ── timeline ── */
+.timeline { display: flex; align-items: center; padding: 24px 16px; overflow-x: auto; }
+.tl-node { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; min-width: 96px; }
+.tl-node::after { content: ""; position: absolute; top: 9px; left: 50%; width: 100%; height: 1px; background: var(--border); z-index: 0; }
+.tl-node:last-child::after { display: none; }
+.tl-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--bg-base); border: 2px solid var(--border-strong); position: relative; z-index: 1; }
+.tl-dot.current { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+.tl-dot.promote { border-color: var(--green); background: var(--green); }
+.tl-dot.reject  { border-color: var(--red); background: var(--red); }
+.tl-dot.shadow  { border-color: var(--text-3); background: var(--bg-base); }
+.tl-ver  { font-family: var(--mono-n); font-size: 11px; color: var(--text); }
+.tl-tag  { font-family: var(--mono-d); font-size: 9px; letter-spacing: 0.08em; color: var(--text-3); }
+.tl-time { font-family: var(--mono-n); font-size: 9px; color: var(--text-4); }
+
+/* ── drift table ── */
+.drift-table { width: 100%; border-collapse: collapse; }
+.drift-table th { text-align: left; font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); font-weight: 500; padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-elevated); }
+.drift-table td { padding: 10px 16px; font-family: var(--mono-n); font-size: 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text); }
+.drift-table tr:hover td { background: var(--bg-elevated); }
+.drift-bar { width: 100px; height: 4px; background: var(--bg-elevated); border-radius: 2px; display: inline-block; vertical-align: middle; overflow: hidden; }
+.drift-bar-fill { height: 100%; }
+
+/* ── methodology ── */
+.meth { max-width: 760px; margin: 32px auto 80px; padding: 0 8px; }
+.meth h1 { font-family: var(--mono-d); font-size: 28px; font-weight: 600; color: var(--text); margin: 0 0 8px; letter-spacing: -0.01em; }
+.meth .meth-sub { font-family: var(--mono-d); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); margin-bottom: 32px; }
+.meth h2 { font-family: var(--mono-d); font-size: 16px; font-weight: 600; color: var(--text); margin: 40px 0 12px; padding-top: 20px; border-top: 1px solid var(--border-subtle); display: flex; align-items: baseline; gap: 12px; }
+.meth h2 .num { font-family: var(--mono-n); color: var(--accent); font-size: 12px; }
+.meth p { font-family: var(--sans); font-size: 15px; line-height: 1.75; color: var(--text); margin: 0 0 16px; }
+.meth p.muted { color: var(--text-2); }
+.meth code { font-family: var(--mono-n); background: var(--bg-elevated); padding: 1px 6px; border-radius: 3px; font-size: 13px; border: 1px solid var(--border-subtle); }
+.meth blockquote { margin: 20px 0; padding: 14px 18px; border-left: 3px solid var(--accent); background: var(--bg-elevated); color: var(--text-2); font-family: var(--sans); font-size: 14px; line-height: 1.7; border-radius: 0 4px 4px 0; }
+.meth ul { padding-left: 20px; color: var(--text); }
+.meth ul li { margin: 6px 0; line-height: 1.7; font-size: 15px; }
+.meth-links { display: flex; gap: 10px; margin-top: 32px; flex-wrap: wrap; }
+.meth-btn { padding: 10px 16px; border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: var(--mono-d); font-size: 12px; background: var(--bg-surface); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 120ms; cursor: pointer; }
+.meth-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── dropdown ── */
+.dropdown { position: absolute; top: calc(100% + 6px); right: 0; min-width: 200px; background: rgba(6, 9, 15, 0.92); backdrop-filter: blur(24px) saturate(200%); -webkit-backdrop-filter: blur(24px) saturate(200%); border: 1px solid rgba(32, 164, 243, 0.28); border-radius: 8px; padding: 4px; z-index: 200; box-shadow: 0 16px 48px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06); animation: fadeIn 180ms ease-out; }
+.dropdown-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-family: var(--mono-d); font-size: 12px; color: var(--text); }
+.dropdown-item:hover { background: var(--bg-elevated); }
+.dropdown-item.active { background: var(--accent-dim); color: var(--accent); }
+.pair-wrap { position: relative; }
+
+/* ── chart tooltip ── */
+.chart-tip { position: absolute; pointer-events: none; background: var(--bg-overlay); border: 1px solid var(--border-strong); border-radius: 4px; padding: 10px 12px; font-family: var(--mono-n); font-size: 11px; z-index: 10; min-width: 160px; transform: translate(-50%,calc(-100% - 12px)); opacity: 0; transition: opacity 120ms; }
+.chart-tip.show { opacity: 1; }
+.chart-tip .tt-time  { color: var(--text-3); font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; margin-bottom: 4px; }
+.chart-tip .tt-close { font-family: var(--mono-n); font-size: 15px; color: var(--text); line-height: 1.2; }
+.chart-tip .tt-row   { display: flex; justify-content: space-between; gap: 14px; padding: 1px 0; }
+.chart-tip .tt-row .k { color: var(--text-3); }
+
+/* ── Recharts tooltip (page2 perf-charts.jsx) — same look as .chart-tip above,
+   just no manual positioning since Recharts places it itself ── */
+.rc-tooltip { background: var(--bg-overlay); border: 1px solid var(--border-strong); border-radius: 4px; padding: 8px 10px; font-family: var(--mono-n); font-size: 11px; pointer-events: none; }
+.rc-tooltip-t { color: var(--text-3); font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.08em; margin-bottom: 4px; }
+
+/* ── mobile hover info panel (ИП) — sits under panel-head, in-flow, so it never
+   covers the chart the way the desktop floating .chart-tip would on a narrow screen.
+   Always open — shows the last actual candle by default when nothing is hovered. ── */
+.chart-tip-mobile { padding: 10px 14px; background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle); font-family: var(--mono-n); font-size: 11px; min-height: 46px; }
+
+/* ── footer ── */
+.foot { margin-top: 40px; padding: 16px 0; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; font-family: var(--mono-d); font-size: 10px; letter-spacing: 0.1em; color: var(--text-4); }
+
+/* ── mobile (kept last so it reliably wins the cascade over the base rules above) ── */
+@media (max-width: 768px) {
+  .nav { gap: 12px; padding: 0 12px; }
+  .brand-tag { display: none; }
+  .brand > span:not(.brand-tag) { display: none; }
+  .tab { padding: 0 10px; }
+  .tab.active::after { left: 8px; right: 8px; }
+  .tab-num { display: none; }
+  .tab-icon { display: inline-flex; }
+  .tab-text { display: none; }
+  .live { display: none; }
+  .nav-right { gap: 10px; }
+  .pair-quote { display: none; }
+
+  /* page-strip: move from top of the tab to just above the footer */
+  .container > .fade-in:has(> .page-strip) { display: flex; flex-direction: column; }
+  .page-strip { order: 1; flex-wrap: wrap; row-gap: 8px; border-bottom: none; border-top: 1px solid var(--border-subtle); }
+  .page-strip .meta { margin-left: 0; width: 100%; flex-wrap: wrap; gap: 8px 16px; }
+
+  /* panel-head: wrap button groups instead of overflowing */
+  .panel-head { flex-wrap: wrap; row-gap: 8px; padding: 10px 12px; }
+  .panel-actions { margin-left: 0; }
+
+  /* chart-controls: timeframe buttons stay on one row (settings gear is separate, see charts settings popover) */
+  .chart-controls { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .icon-btn.chip-btn { padding: 0 7px; font-size: 11px; }
+
+  /* chart: shorter block, fills it edge-to-edge (see PriceChart's isMobile branch in charts.jsx).
+     flex:none — иначе flex:1 с десктопного правила продолжает растягивать блок под
+     высоту side-панели (на мобилке она в другом порядке в потоке, но flex-контекст
+     тот же .chart-panel), а мобильный H в charts.jsx как раз рассчитан на 300px. */
+  .chart-wrap { height: 300px; flex: none; min-height: 0; }
+
+  /* page side padding — 56px (desktop) is too wide on a narrow phone screen */
+  .container { padding: 0 16px; }
+
+  /* event tape: margin-top removed — the gap above it now lives in mobile-price-row's
+     padding-top instead (kept the same total ~22px so the rhythm doesn't change, just
+     which element owns it). */
+  .tape { margin-top: 0; }
+  .mobile-price-row { padding: 22px 0 10px; }
+
+  /* Prediction Log horizon filter: обратно на 3×4 — на мобилке по ширине и так
+     впритык (168px десктопного min-width там не помещается так же вольготно). */
+  .dropdown.log-horizon-menu { min-width: 148px; }
+  .log-horizon-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 420px) {
+  .nav { gap: 8px; }
+  .tab { padding: 0 8px; }
+  .container { padding: 0 12px; }
+}
+
+@theme {
+  --color-cian: #20A4F3;
+  --color-vio: #642CA9;
+  --color-red: #f42b49;
+  --color-green: #3DFFA8;
+}

@@ -1,0 +1,50 @@
+{
+  "windows": {
+    "1h": {
+      "directional_accuracy": 75.8,
+      "mae": 27.87,
+      "rmse": 33.64,
+      "delta_accuracy": 14.7,
+      "n": 120,
+      "sharpe": 86.884,
+      "sharpe_n": 10
+    },
+    "24h": {
+      "directional_accuracy": 52.3,
+      "mae": 133.53,
+      "rmse": 223.49,
+      "delta_accuracy": -0.1,
+      "n": 3432,
+      "sharpe": 2.788,
+      "sharpe_n": 286
+    },
+    "7d": {
+      "directional_accuracy": 52.0,
+      "mae": 144.37,
+      "rmse": 226.72,
+      "delta_accuracy": -0.4,
+      "n": 24168,
+      "sharpe": 0.81,
+      "sharpe_n": 2014
+    },
+    "30d": {
+      "directional_accuracy": 52.7,
+      "mae": 141.32,
+      "rmse": 228.83,
+      "delta_accuracy": 0.2,
+      "n": 103356,
+      "sharpe": -2.338,
+      "sharpe_n": 8613
+    },
+    "all": {
+      "directional_accuracy": 52.5,
+      "mae": 128.67,
+      "rmse": 214.19,
+      "delta_accuracy": null,
+      "n": 236206,
+      "sharpe": 0.599,
+      "sharpe_n": 19691
+    }
+  },
+  "updated_at": "2026-10-03T08:05:07.189185Z"
+}
